@@ -1,0 +1,41 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/fzp?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: 123456
+  jpa:
+    database: MySQL
+    show-sql: true
+    hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl  #避免将驼峰命名转换为下划线命名
+eureka:
+  client:
+    service-url:
+      defaultZone: http://fzpCloudEurekaServerA:8761/eureka,http://fzpCloudEurekaServerB:8761/eureka
+  instance:
+    prefer-ip-address: true #服务实例中显示ip，而不是显示主机名（兼容老的eureka版本）
+    # 实例名称： 192.168.1.103:lagou-service-resume:8080，我们可以自定义它
+    instance-id: ${spring.cloud.client.ip-address}:${spring.application.name}:${server.port}:@project.version@
+    # 自定义Eureka元数据
+    metadata-map:
+      cluster: cl1
+      region: rn1
+feign:
+  hystrix:
+    enabled: false
+ribbon:
+  #请求连接超时时间
+  ConnectTimeout: 2000
+  #请求处理超时时间
+  ##########################################Feign超时时长设置
+  ReadTimeout: 3000
+  #对所有操作都进行重试
+  OkToRetryOnAllOperations: true
+  ####根据如上配置，当访问到故障请求的时候，它会再尝试访问一次当前实例（次数由MaxAutoRetries配置），
+  ####如果不行，就换一个实例进行访问，如果还不行，再换一次实例访问（更换次数由MaxAutoRetriesNextServer配置），
+  ####如果依然不行，返回失败信息。
+  MaxAutoRetries: 0 #对当前选中实例重试次数，不包括第一次调用
+  MaxAutoRetriesNextServer: 0 #切换实例的重试次数
+  NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RoundRobinRule #负载策略调整
